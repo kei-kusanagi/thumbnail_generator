@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:thumblr/thumblr.dart';
@@ -23,10 +22,11 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-  Future<void> saveImageToFile(Uint8List imageBytes) async {
-    Uint8List imageBytes = await thumb!.image
+  Future<void> saveImageToFile(tempThumbnail) async {
+    Uint8List imageBytes = await tempThumbnail
         .toByteData(format: ImageByteFormat.png)
         .then((byteData) => byteData!.buffer.asUint8List());
+    // Uint8List imageData = base64.decode(tempThumbnail);
 
     String tempDir = Directory.systemTemp.path;
     File imageFile = File('$tempDir/thumbnail.png');
@@ -39,8 +39,11 @@ class _MyAppState extends State<MyApp> {
     try {
       thumb = await generateThumbnail(
         filePath: urlController.text,
-        position: 0.5,
+        position: 0,
       );
+      print('thumb: ${thumb.runtimeType}');
+      print('thumb!.image: ${thumb!.image.runtimeType}');
+      saveImageToFile(thumb?.image);
 
       setState(() {});
     } on PlatformException catch (e) {
@@ -55,37 +58,40 @@ class _MyAppState extends State<MyApp> {
     final TextEditingController urlController = TextEditingController();
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(brightness: Brightness.dark),
       home: Material(
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Center(
-                      child: thumb?.image != null
-                          ? RawImage(image: thumb!.image)
-                          : const Placeholder(),
-                    ),
-                    TextField(
-                      controller: urlController,
-                      decoration: const InputDecoration(
-                        hintText: 'Enter video URL',
+        child: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Center(
+                        child: thumb?.image != null
+                            ? RawImage(image: thumb!.image)
+                            : const Placeholder(),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        getThumbnail(urlController);
-                      },
-                      child: const Text('Save thumbnail'),
-                    ),
-                  ],
+                      TextField(
+                        controller: urlController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter video URL',
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          getThumbnail(urlController);
+                        },
+                        child: const Text('Save thumbnail'),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
