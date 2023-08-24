@@ -21,8 +21,10 @@ You will need to add an entitlement for either read-only access:
 
 ``<key>com.apple.security.files.user-selected.read-only</key>
 <true/>``
+
 or read-write access:
 
 ``<key>com.apple.security.files.user-selected.read-write</key>
 <true/>``
+
 depending on your use case. It may also be necessary to turn off the app-sandbox entitlement.
